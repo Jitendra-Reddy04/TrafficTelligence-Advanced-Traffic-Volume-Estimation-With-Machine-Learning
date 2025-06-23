@@ -15,55 +15,50 @@
 # %%
 import numpy as np
 import pickle
-from flask import Flask, request, render_template
+import joblib
+import matplotlib.pyplot as plt
+import time
+import pandas
+import os
+from flask import Flask, request, jsonify, render_template
 
-# Initialize Flask app
-app = Flask(__name__)
+app=Flask(__name__)
+model=pickle.load(open("model.pkl",'rb'))
+scale = pickle.load(open('encoder.pkl','rb'))
 
-# Load trained model and scaler
-model = pickle.load(open('model.pkl', 'rb'))
-scale = pickle.load(open('scale.pkl', 'rb'))
-
-@app.route('/')  # Home page route
+@app.route("/")
 def home():
-    return render_template('index.html')
+    return render_template("home.html")
 
-@app.route('/predict', methods=['POST'])  # Prediction route
+@app.route("/predict")
 def predict():
-    try:
-        # Extracting 11 input features from the form (in correct order)
-        features = [
-            float(request.form['holiday']),
-            float(request.form['temp']),
-            float(request.form['rain']),
-            float(request.form['snow']),
-            float(request.form['weather']),
-            float(request.form['day']),
-            float(request.form['month']),
-            float(request.form['year']),
-            float(request.form['hours']),
-            float(request.form['minutes']),
-            float(request.form['seconds'])
-        ]
+    return render_template("web_page.html")
 
-        # Convert to numpy array and reshape for prediction
-        final_input = np.array(features).reshape(1, -1)
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
-        # Scale the input
-        final_input_scaled = scale.transform(final_input)
+@app.route("/result",methods=["POST"])
+def result():
+    input_feature=[float(x)for x in request.form.values()]
+    features_values=[np.array(input_feature[0:11])]
+    # features = features_values[:7]
+    # print(features)
+    names = [['holiday','temp','rain','snow','weather','year','month','day','hours','minutes','seconds']]
+    data = pandas.DataFrame(features_values, columns=names)
+    # data = scale.fit_transform(data)
+    # data = pandas.DataFrame(data, columns = names)
+    prediction=model.predict(data)
+    print(prediction)
+    text = "Estimated Traffic Volume is :"
+    return render_template("result.html" ,prediction_text = text + str(prediction))
 
-        # Predict traffic volume
-        prediction = model.predict(final_input_scaled)
 
-        # Return result to frontend
-        return render_template('index.html', prediction_text=f'Predicted Traffic Volume: {prediction[0]:.0f}')
-
-    except Exception as e:
-        return render_template('index.html', prediction_text=f'❌ Error: {e}')
-
-# Run the app
-if __name__ == '_main_':
-    app.run(debug=True)
+if __name__=="__main__":
+    # port=8000, debug=True)
+   
+    app.run(debug=True,use_reloader=False)
+# * running the app
 
 # %%
 
