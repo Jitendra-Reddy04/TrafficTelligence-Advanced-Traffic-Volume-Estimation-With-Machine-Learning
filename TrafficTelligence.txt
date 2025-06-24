@@ -1,5 +1,0 @@
-TrafficTelligence-Advanced-Traffic-Volume-Estimation-With-Machine-Learning
-The Traffic Intelligence project aims to revolutionize traffic management through the implementation of advanced machine learning techniques for accurate and real-time traffic volume estimation.
-
-Project Overview
-This project predicts traffic volume using historical data and machine learning techniques. The dataset includes weather conditions, temporal data, and other features that influence traffic. By preprocessing the data and training multiple machine learning models, the project identifies the most effective model for accurate predictions.
